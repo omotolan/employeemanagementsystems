@@ -1,4 +1,4 @@
-package africa.semicolon.employeemanagementsystems.data;
+package africa.semicolon.employeemanagementsystems.data.models;
 
 public enum SchoolQualification {
     BACHELORS_DEGREE,

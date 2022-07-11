@@ -1,4 +1,4 @@
-package africa.semicolon.employeemanagementsystems.data;
+package africa.semicolon.employeemanagementsystems.data.models;
 
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -14,16 +14,19 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "employees")
+@Builder
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Column( nullable = false)
     private String firstName;
+    @Column( nullable = false)
     private String lastName;
     @Column(unique = true)
     private String emailAddress;
     private int age;
+    @Column( nullable = false)
     private String phoneNumber;
     @OneToOne
 //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)

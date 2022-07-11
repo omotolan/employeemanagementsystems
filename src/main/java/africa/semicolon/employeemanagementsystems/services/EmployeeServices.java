@@ -1,7 +1,7 @@
 package africa.semicolon.employeemanagementsystems.services;
 
-import africa.semicolon.employeemanagementsystems.data.Employee;
-import africa.semicolon.employeemanagementsystems.data.Level;
+import africa.semicolon.employeemanagementsystems.data.models.Employee;
+import africa.semicolon.employeemanagementsystems.data.models.Level;
 import africa.semicolon.employeemanagementsystems.dto.reponse.RegisterResponse;
 import africa.semicolon.employeemanagementsystems.dto.reponse.Response;
 import africa.semicolon.employeemanagementsystems.dto.reponse.SuspensionStatusResponse;
@@ -9,6 +9,7 @@ import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeServices {
     RegisterResponse register(Register registerRequest);
@@ -33,4 +34,6 @@ public interface EmployeeServices {
     Response deleteEmployeeById(Long id);
 
     Response deleteAllEmployee();
+
+    Optional<Employee> findEmployeeById(long id);
 }

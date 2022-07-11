@@ -1,33 +1,33 @@
-package africa.semicolon.employeemanagementsystems.data;
+package africa.semicolon.employeemanagementsystems.data.models;
 
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
 @Setter
 @ToString
+@Entity
 @RequiredArgsConstructor
-@Entity(name = "departments")
-public class Department {
+public class Level {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
+    private Long id;
+    private JobLevel level;
 
-    private Dept dept;
-    @CreationTimestamp
-    private LocalDateTime creationDate = LocalDateTime.now();
+    public Long getId() {
+        return id;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Department that = (Department) o;
-        return dept != null && Objects.equals(dept, that.dept);
+        Level level = (Level) o;
+        return id != null && Objects.equals(id, level.id);
     }
 
     @Override

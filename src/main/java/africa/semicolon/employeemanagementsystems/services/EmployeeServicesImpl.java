@@ -1,9 +1,9 @@
 package africa.semicolon.employeemanagementsystems.services;
 
-import africa.semicolon.employeemanagementsystems.data.Employee;
-import africa.semicolon.employeemanagementsystems.data.EmployeeSalary;
-import africa.semicolon.employeemanagementsystems.data.JobLevel;
-import africa.semicolon.employeemanagementsystems.data.Level;
+import africa.semicolon.employeemanagementsystems.data.models.Employee;
+import africa.semicolon.employeemanagementsystems.data.models.EmployeeSalary;
+import africa.semicolon.employeemanagementsystems.data.models.JobLevel;
+import africa.semicolon.employeemanagementsystems.data.models.Level;
 import africa.semicolon.employeemanagementsystems.dto.reponse.RegisterResponse;
 import africa.semicolon.employeemanagementsystems.dto.reponse.Response;
 import africa.semicolon.employeemanagementsystems.dto.reponse.SuspensionStatusResponse;
@@ -11,7 +11,7 @@ import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
 import africa.semicolon.employeemanagementsystems.exceptions.EmailAlreadyExist;
 import africa.semicolon.employeemanagementsystems.exceptions.NoEmployeeInThisDepartment;
-import africa.semicolon.employeemanagementsystems.repositories.EmployeeRepository;
+import africa.semicolon.employeemanagementsystems.data.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -51,7 +51,11 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<Employee> getAllEmployee() {
-        return employeeRepository.findAll();
+        List<Employee> employeeList = employeeRepository.findAll();
+        if (employeeList.isEmpty()) {
+            throw new IllegalArgumentException("Employee list is empty");
+        }
+        return employeeList;
     }
 
 
@@ -169,6 +173,18 @@ public class EmployeeServicesImpl implements EmployeeServices {
     public Response deleteAllEmployee() {
         employeeRepository.deleteAll();
         return new Response("All employee have been deleted");
+    }
+
+    @Override
+    public Optional<Employee> findEmployeeById(long id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isEmpty()) {
+            throw new IllegalArgumentException("employee with " + id + " does not exist");
+        }
+
+        return employee;
+      /*  return Optional.ofNullable(employeeRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("employee with " + id + " does not exist")));**/
     }
 
 }

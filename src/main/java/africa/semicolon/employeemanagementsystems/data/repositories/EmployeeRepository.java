@@ -1,9 +1,8 @@
-package africa.semicolon.employeemanagementsystems.repositories;
+package africa.semicolon.employeemanagementsystems.data.repositories;
 
-import africa.semicolon.employeemanagementsystems.data.Department;
-import africa.semicolon.employeemanagementsystems.data.Employee;
-import africa.semicolon.employeemanagementsystems.data.Level;
-import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
+import africa.semicolon.employeemanagementsystems.data.models.Department;
+import africa.semicolon.employeemanagementsystems.data.models.Employee;
+import africa.semicolon.employeemanagementsystems.data.models.Level;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

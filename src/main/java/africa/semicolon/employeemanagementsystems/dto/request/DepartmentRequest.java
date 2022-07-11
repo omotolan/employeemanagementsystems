@@ -1,7 +1,6 @@
 package africa.semicolon.employeemanagementsystems.dto.request;
 
-import africa.semicolon.employeemanagementsystems.data.Department;
-import africa.semicolon.employeemanagementsystems.data.Dept;
+import africa.semicolon.employeemanagementsystems.data.models.Department;
 import lombok.Data;
 
 @Data
