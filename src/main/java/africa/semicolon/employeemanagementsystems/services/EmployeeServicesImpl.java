@@ -3,33 +3,34 @@ package africa.semicolon.employeemanagementsystems.services;
 import africa.semicolon.employeemanagementsystems.data.models.Employee;
 import africa.semicolon.employeemanagementsystems.data.models.EmployeeSalary;
 import africa.semicolon.employeemanagementsystems.data.models.JobLevel;
-import africa.semicolon.employeemanagementsystems.data.models.Level;
 import africa.semicolon.employeemanagementsystems.dto.reponse.RegisterResponse;
 import africa.semicolon.employeemanagementsystems.dto.reponse.Response;
 import africa.semicolon.employeemanagementsystems.dto.reponse.SuspensionStatusResponse;
+import africa.semicolon.employeemanagementsystems.dto.reponse.UpdateResponse;
 import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
+import africa.semicolon.employeemanagementsystems.dto.request.UpdateRequest;
 import africa.semicolon.employeemanagementsystems.exceptions.EmailAlreadyExist;
 import africa.semicolon.employeemanagementsystems.exceptions.NoEmployeeInThisDepartment;
 import africa.semicolon.employeemanagementsystems.data.repositories.EmployeeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class EmployeeServicesImpl implements EmployeeServices {
-
     private final EmployeeRepository employeeRepository;
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Autowired
-    public EmployeeServicesImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServicesImpl(EmployeeRepository employeeRepository, ModelMapper mapper) {
         this.employeeRepository = employeeRepository;
-        // this.mapper = mapper;
+        this.mapper = mapper;
     }
 
 
@@ -46,6 +47,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
         employeeRepository.save(employee);
 
+        //log.info(employee.getFirstName() + " has been registered");
         return new RegisterResponse(employee.getFirstName() + " has been registered");
     }
 
@@ -61,7 +63,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<Employee> findEmployeeByDepartment(DepartmentRequest departmentRequest) {
-        List<Employee> employee = employeeRepository.findByDepartment(departmentRequest.getDepartment());
+        List<Employee> employee = employeeRepository.findByDept(departmentRequest.getDept());
         if (employee == null) {
             throw new NoEmployeeInThisDepartment("No employee in this department");
         }
@@ -71,14 +73,14 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public void setEmployeeSalaryUsingJobLevel(Level level) {
+    public void setEmployeeSalaryUsingJobLevel(JobLevel jobLevel) {
         Employee employee = new Employee();
-        if (level.getLevel() == JobLevel.INTERNSHIP) {
+        if (jobLevel == JobLevel.INTERNSHIP) {
             employee.setEmployeeSalary(EmployeeSalary.INTERNSHIP_EMPLOYEE_SALARY);
-        } else if (level.getLevel() == JobLevel.ENTRY_LEVEL) {
+        } else if (jobLevel == JobLevel.ENTRY_LEVEL) {
             employee.setEmployeeSalary(EmployeeSalary.INTERNSHIP_EMPLOYEE_SALARY);
 
-        } else if (level.getLevel() == JobLevel.MIDDLE_LEVEL) {
+        } else if (jobLevel == JobLevel.MIDDLE_LEVEL) {
             employee.setEmployeeSalary(EmployeeSalary.MIDDLE_LEVEL_EMPLOYEE_SALARY);
 
         } else employee.setEmployeeSalary(EmployeeSalary.SENIOR_LEVEL_EMPLOYEE_SALARY);
@@ -88,11 +90,10 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public List<Employee> findEmployeeByJobLevel(Level level) {
-        List<Employee> employee = new ArrayList<>();
-        employee = employeeRepository.findByJobLevel(level);
+    public List<Employee> findEmployeeByJobLevel(JobLevel jobLevel) {
+        List<Employee> employee = employeeRepository.findByJobLevel(jobLevel);
         if (employee == null) {
-            throw new IllegalArgumentException("No employee in this" + level.toString() + " level");
+            throw new IllegalArgumentException("No employee in this" + jobLevel.toString() + " level");
         }
 
         return employee;
@@ -159,15 +160,15 @@ public class EmployeeServicesImpl implements EmployeeServices {
         return employee.getId();
     }
 
-    @Override
-    public Response deleteEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
-        if (employee.isEmpty()) {
-            throw new IllegalArgumentException("employee with " + id + " does not exist");
-        }
-        employeeRepository.delete(employee);
-        return new Response("Employee with id number: " + id + " has been deleted");
-    }
+//    @Override
+//    public Response deleteEmployeeById(Long id) {
+//        Optional<Employee> employee = employeeRepository.findById(id);
+//        if (employee.isEmpty()) {
+//            throw new IllegalArgumentException("employee with " + id + " does not exist");
+//        }
+//        employeeRepository.delete(employee);
+//        return new Response("Employee with id number: " + id + " has been deleted");
+//    }
 
     @Override
     public Response deleteAllEmployee() {
@@ -185,6 +186,34 @@ public class EmployeeServicesImpl implements EmployeeServices {
         return employee;
       /*  return Optional.ofNullable(employeeRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("employee with " + id + " does not exist")));**/
+    }
+
+    @Override
+    public UpdateResponse updateEmployeeDetails(long id, UpdateRequest updateRequest) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        Employee employee1 = employeeRepository.findByEmailAddress(updateRequest.getEmailAddress());
+        if (employee.isEmpty()) {
+            throw new IllegalArgumentException("employee with " + id + " does not exist");
+        }
+        if (updateRequest.getFirstName().length() != 0) {
+            employee.get().setFirstName(updateRequest.getFirstName());
+        }
+        if (updateRequest.getLastName().length() != 0) {
+            employee.get().setLastName(updateRequest.getLastName());
+        }
+        if (updateRequest.getAge() <= 0) {
+            employee.get().setAge(updateRequest.getAge());
+        }
+        if (updateRequest.getPhoneNumber().length() != 0) {
+            employee.get().setPhoneNumber(updateRequest.getPhoneNumber());
+        }
+        if (employee1 == null && updateRequest.getEmailAddress().length() != 0) {
+            employee.get().setEmailAddress(updateRequest.getEmailAddress());
+        }
+        Employee employee2 = employeeRepository.save(employee);
+
+
+        return new UpdateResponse("employee with id number " + employee2.getId() + " details has been updated");
     }
 
 }

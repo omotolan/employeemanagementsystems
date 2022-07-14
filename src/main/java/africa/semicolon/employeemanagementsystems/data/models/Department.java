@@ -11,27 +11,21 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Entity(name = "departments")
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
-
+    private Long id;
+    @Enumerated(EnumType.STRING)
     private Dept dept;
     @CreationTimestamp
     private LocalDateTime creationDate = LocalDateTime.now();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Department that = (Department) o;
-        return dept != null && Objects.equals(dept, that.dept);
+    public Department(Dept dept) {
+        this.dept = dept;
     }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public Department() {
+
     }
 }

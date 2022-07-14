@@ -17,6 +17,10 @@ public class Qualification {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    public Qualification(SchoolQualification schoolQualification) {
+        this.schoolQualification = schoolQualification;
+    }
+    @Enumerated(EnumType.STRING)
     private SchoolQualification schoolQualification;
 
     public Long getId() {

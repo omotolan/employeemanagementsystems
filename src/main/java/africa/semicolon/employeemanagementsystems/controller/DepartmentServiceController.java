@@ -17,7 +17,7 @@ public class DepartmentServiceController {
 
     @GetMapping("/departments")
     public ResponseEntity<?> getAllDepartments() {
-        var serviceResponse = departmentService.listAllDepartments();
+        var serviceResponse = departmentService.listAllDepartment();
         ApiResponse response = new ApiResponse(true, serviceResponse);
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }

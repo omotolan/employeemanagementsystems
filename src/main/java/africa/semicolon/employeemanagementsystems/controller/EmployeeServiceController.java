@@ -5,16 +5,17 @@ import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
 import africa.semicolon.employeemanagementsystems.exceptions.EmailAlreadyExist;
 import africa.semicolon.employeemanagementsystems.services.EmployeeServices;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("api/employee/services")
 public class EmployeeServiceController {
-    @Autowired
-    private EmployeeServices employeeServices;
+
+    private final EmployeeServices employeeServices;
 
     @PostMapping("/register")
     public ResponseEntity<?> create(@RequestBody Register register) {
@@ -40,7 +41,7 @@ public class EmployeeServiceController {
         }
     }
 
-    @GetMapping("/employee/departments?")
+    @GetMapping("/employee/departments")
     public ResponseEntity<?> getEmployeeByDepartment(@RequestBody DepartmentRequest department) {
         try {
             var serviceResponse = employeeServices.findEmployeeByDepartment(department);
@@ -58,30 +59,31 @@ public class EmployeeServiceController {
         ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
         return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
+
     @GetMapping("/employee/{id}")
-    public ResponseEntity<?> getAnEmployee(@PathVariable Long id){
+    public ResponseEntity<?> getAnEmployee(@PathVariable Long id) {
         try {
             var serviceResponse = employeeServices.findEmployeeById(id);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             ApiResponse apiResponse = new ApiResponse(false, e.getMessage());
-            return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
         }
     }
-    @DeleteMapping("/employee/{id}")
-    public ResponseEntity<?> deleteAnEmployee(@PathVariable Long id){
-        try {
-            var serviceResponse = employeeServices.deleteEmployeeById(id);
-            ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
-            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
-        }
-        catch (IllegalArgumentException e){
-            ApiResponse apiResponse = new ApiResponse(false, e.getMessage());
-            return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
-        }
-    }
+//    @DeleteMapping("/employee/{id}")
+//    public ResponseEntity<?> deleteAnEmployee(@PathVariable Long id){
+//        try {
+//            var serviceResponse = employeeServices.deleteEmployeeById(id);
+//            ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
+//            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+//        }
+//        catch (IllegalArgumentException e){
+//            ApiResponse apiResponse = new ApiResponse(false, e.getMessage());
+//            //ResponseEntity.ok(apiResponse);
+//            return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
 
 }

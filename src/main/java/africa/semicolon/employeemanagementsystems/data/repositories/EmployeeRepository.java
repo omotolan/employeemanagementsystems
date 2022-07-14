@@ -1,8 +1,6 @@
 package africa.semicolon.employeemanagementsystems.data.repositories;
 
-import africa.semicolon.employeemanagementsystems.data.models.Department;
-import africa.semicolon.employeemanagementsystems.data.models.Employee;
-import africa.semicolon.employeemanagementsystems.data.models.Level;
+import africa.semicolon.employeemanagementsystems.data.models.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,9 +11,11 @@ import java.util.Optional;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Employee findByEmailAddress(String emailAddress);
 
-    List<Employee> findByDepartment(Department department);
+    List<Employee> findByDept(Dept dept);
 
-    List<Employee> findByJobLevel(Level level);
+    List<Employee> findByJobLevel(JobLevel jobLevel);
 
-    void delete(Optional<Employee> employee);
+    //void delete(Optional<Employee> employee);
+    void delete(Employee employee);
+    Employee save(Optional<Employee> employee);
 }

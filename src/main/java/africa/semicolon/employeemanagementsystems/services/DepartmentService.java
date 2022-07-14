@@ -3,9 +3,10 @@ package africa.semicolon.employeemanagementsystems.services;
 import africa.semicolon.employeemanagementsystems.data.models.Department;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DepartmentService {
-    List<Department> listAllDepartments();
+    List<Department> listAllDepartment();
 
-    Department findDepartmentByName(String frrger);
+    Optional<Department> findDepartmentById(Long id);
 }

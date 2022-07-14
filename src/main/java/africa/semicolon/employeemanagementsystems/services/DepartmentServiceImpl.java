@@ -2,25 +2,26 @@ package africa.semicolon.employeemanagementsystems.services;
 
 import africa.semicolon.employeemanagementsystems.data.models.Department;
 import africa.semicolon.employeemanagementsystems.data.repositories.DepartmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService{
-    @Autowired
-    private DepartmentRepository departmentRepository;
+
+    private final DepartmentRepository departmentRepository;
 
     @Override
-    public List<Department> listAllDepartments() {
+    public List<Department> listAllDepartment() {
         return departmentRepository.findAll();
     }
 
-    @Override
-    public Department findDepartmentByName(String frrger) {
-        Department department = departmentRepository.findByDepartmentName(frrger);
-        if (department == null){
+    public Optional<Department> findDepartmentById(Long id) {
+        Optional<Department> department = departmentRepository.findById(id);
+        if (department.isEmpty()){
             throw new IllegalArgumentException("Department does not exist");
         }
         return department;

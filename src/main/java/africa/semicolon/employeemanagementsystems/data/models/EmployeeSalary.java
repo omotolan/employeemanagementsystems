@@ -3,6 +3,7 @@ package africa.semicolon.employeemanagementsystems.data.models;
 import lombok.Data;
 
 import java.math.BigDecimal;
+
 @Data
 public class EmployeeSalary {
     public static final BigDecimal INTERNSHIP_EMPLOYEE_SALARY = BigDecimal.valueOf(80000);
