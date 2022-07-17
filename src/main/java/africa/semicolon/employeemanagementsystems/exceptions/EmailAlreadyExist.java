@@ -4,4 +4,5 @@ public class EmailAlreadyExist extends EmployeeManagementSystemExceptions {
     public EmailAlreadyExist(String message) {
         super(message);
     }
+
 }

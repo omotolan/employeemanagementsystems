@@ -14,11 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -36,43 +37,57 @@ class EmployeeServicesImplTest {
 
     @Test
     public void testThatEmployeeCanRegister() {
-
         Register registerRequest = Register.builder()
                 .firstName("tolani")
                 .lastName("akinsola")
                 .age(34)
-                .emailAddress("akinsolatolanii@gmail.com")
+                .emailAddress("abakinsolatolanni@gmaiill.com")
                 .phoneNumber("08043432323")
                 .isSuspended(false)
-                .dept(Dept.FINANCE)
-                .jobLevel(JobLevel.MIDDLE_LEVEL)
-                .schoolQualification(SchoolQualification.BACHELORS_DEGREE)
-                .schoolQualification(SchoolQualification.MASTERS_DEGREE)
-
+                .department(Department.FINANCE)
+                .jobLevel(JobLevel.MIDDLE)
+                .schoolQualification(SchoolQualification.BSC)
+                .schoolQualification(SchoolQualification.MSC)
                 .build();
 
-        RegisterResponse registerResponse = employeeServices.register(registerRequest);
+        RegisterResponse registerResponse = employeeServices.registerEmployee(registerRequest);
         assertTrue(repository.count() > 0);
         assertEquals("tolani has been registered", registerResponse.toString());
-        // assertEquals(" ", EmailAlreadyExist.class.);
-        // Exception me = assertThrows(EmailAlreadyExist.class, () -> employeeServices.register(registerRequest),
-        //    "Email already exist");
-        //  assertEquals("Email already exist", me.getMessage());
-//        var me =  assertThrows(EmailAlreadyExist.class, ()->employeeServices.register(registerRequest),
-//                "Email already exist");
-        // assertTrue(me.getMessage().contains("Email already exist"));
+
+    }
+
+    @Test
+    public void testThatRegistrationMethodThrowsExceptions() {
+        Register registerRequest = Register.builder()
+                .firstName("tolani")
+                .lastName("akinsola")
+                .age(34)
+                .emailAddress("abakinsolatolanni@gmaiill.com")
+                .phoneNumber("08043432323")
+                .isSuspended(false)
+                .jobLevel(JobLevel.MIDDLE)
+                .schoolQualification(SchoolQualification.BSC)
+                .schoolQualification(SchoolQualification.MSC)
+                .build();
+        assertThatThrownBy(() ->
+                employeeServices.registerEmployee(registerRequest)
+        )
+                .isInstanceOf(EmailAlreadyExist.class)
+                // .hasMessageContaining(registerRequest.getEmailAddress() + " Email already exist");
+                .hasMessage(registerRequest.getEmailAddress() + " Email already exist");
+
     }
 
     @Test
     public void testToFindEmployeeById() {
-        Optional<Employee> employee = employeeServices.findEmployeeById(1L);
+        Optional<Employee> employee = employeeServices.getEmployeeById(1L);
         assertThat(employee).isNotNull();
         assertEquals(" ", employee.get().getEmailAddress());
     }
 
     @Test
     public void testToGetEmployeeIdByEmailAddress() {
-        Long id = employeeServices.findEmployeeIdByEmailAddress("akinsolatolani@yahoo.com");
+        Long id = employeeServices.getEmployeeIdByEmailAddress("akinsolatolani@yahoo.com");
         assertEquals(5, id);
     }
 
@@ -86,34 +101,33 @@ class EmployeeServicesImplTest {
     @Test
     public void testToGetEmployeesByDepartment() {
         DepartmentRequest departmentRequest = new DepartmentRequest();
-        List<Employee> employees = employeeServices.findEmployeeByDepartment(departmentRequest);
+        List<Employee> employees = employeeServices.getEmployeeByDepartment(departmentRequest);
         assertThat(employees).isNotNull();
         assertThat(employees.size()).isEqualTo(3);
     }
 
     @Test
     public void testToGetEmployeeByJobLevel() {
-        //Level level = new Level();
-        List<Employee> employeeList = employeeServices.findEmployeeByJobLevel(JobLevel.MIDDLE_LEVEL);
+        List<Employee> employeeList = employeeServices.getEmployeeByJobLevel(JobLevel.MIDDLE);
         assertThat(employeeList).isNotNull();
         assertThat(employeeList.size()).isEqualTo(3);
     }
 
     @Test
     public void testThatEmployeeCanBeSuspended() {
-        SuspensionStatusResponse suspensionStatusResponse = employeeServices.suspendEmployee("akinsolatolani@yahoo.com");
+        SuspensionStatusResponse suspensionStatusResponse = employeeServices.suspendEmployeeByEmailAddress("akinsolatolani@yahoo.com");
         assertEquals(" ", suspensionStatusResponse.toString());
     }
 
     @Test
     public void testThatEmployeeCanBeUnsuspended() {
-        SuspensionStatusResponse suspensionStatusResponse = employeeServices.unsuspendEmployee("akinsolatolani@yahoo.com");
+        SuspensionStatusResponse suspensionStatusResponse = employeeServices.unSuspendEmployeeEmailAddress("akinsolatolani@yahoo.com");
         assertEquals(" ", suspensionStatusResponse.toString());
     }
 
     @Test
     public void testToCheckEmployeeStatus() {
-        Boolean status = employeeServices.isEmployeeSuspended("akinsolatolani@yahoo.com");
+        Boolean status = employeeServices.isEmployeeSuspendedByEmail("akinsolatolani@yahoo.com");
         assertTrue(status);
     }
 
@@ -123,11 +137,12 @@ class EmployeeServicesImplTest {
         assertEquals(" ", response.toString());
     }
 
-    //    @Test
-//    public void testThatEmployeeCanBeDeletedById(){
-//        Response response = employeeServices.deleteEmployeeById(3L);
-//        assertEquals(" ", response.toString());
-//    }
+    @Test
+    public void testThatEmployeeCanBeDeletedById() {
+        Response response = employeeServices.deleteEmployeeById(3L);
+        assertEquals(" ", response.toString());
+    }
+
     @Test
     public void testToDeleteAllEmployee() {
         Response response = employeeServices.deleteAllEmployee();
@@ -139,4 +154,13 @@ class EmployeeServicesImplTest {
         UpdateRequest updateRequest = new UpdateRequest();
         UpdateResponse updateResponse = employeeServices.updateEmployeeDetails(1L, updateRequest);
     }
+
+    @Test
+    public void testThatEmployeeSalaryCanBeSetWithJobLevel() {
+        //  employeeServices.setEmployeeSalaryUsingJobLevel(JobLevel.MIDDLE_LEVEL);
+        Optional<Employee> employee = repository.findById(26L);
+        //assertThat(repository.findByJobLevel(JobLevel.MIDDLE_LEVEL))
+        assertEquals(new BigDecimal(2), employee.get().getEmployeeSalary());
+    }
+
 }
