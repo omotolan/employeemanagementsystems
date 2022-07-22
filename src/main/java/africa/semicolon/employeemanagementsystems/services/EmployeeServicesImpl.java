@@ -2,7 +2,7 @@ package africa.semicolon.employeemanagementsystems.services;
 
 import africa.semicolon.employeemanagementsystems.data.models.Employee;
 import africa.semicolon.employeemanagementsystems.data.models.EmployeeSalary;
-import africa.semicolon.employeemanagementsystems.data.models.JobLevel;
+import africa.semicolon.employeemanagementsystems.enums.JobLevel;
 import africa.semicolon.employeemanagementsystems.dto.reponse.RegisterResponse;
 import africa.semicolon.employeemanagementsystems.dto.reponse.Response;
 import africa.semicolon.employeemanagementsystems.dto.reponse.SuspensionStatusResponse;
@@ -10,6 +10,7 @@ import africa.semicolon.employeemanagementsystems.dto.reponse.UpdateResponse;
 import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
 import africa.semicolon.employeemanagementsystems.dto.request.UpdateRequest;
+import africa.semicolon.employeemanagementsystems.enums.SchoolQualification;
 import africa.semicolon.employeemanagementsystems.exceptions.EmailAlreadyExist;
 import africa.semicolon.employeemanagementsystems.exceptions.EmployeeDoesNotExist;
 import africa.semicolon.employeemanagementsystems.exceptions.NoEmployeeInThisDepartment;
@@ -21,8 +22,7 @@ import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -38,17 +38,21 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public RegisterResponse registerEmployee(Register registerRequest) {
-        if (emailExists(registerRequest.getEmailAddress())) {
+        if (emailExists(registerRequest.getEmailAddress().toLowerCase())) {
             throw new EmailAlreadyExist(registerRequest.getEmailAddress() + " Email already exist");
         }
 
+
         Employee employee = mapper.map(registerRequest, Employee.class);
+        employee.setEmailAddress(registerRequest.getEmailAddress().toLowerCase());
         employee.setEmployeeSalary(setEmployeeSalaryUsingJobLevel(registerRequest.getJobLevel()));
-        employee.setTimeCreated(Instant.now());
+        employee.setEmployeeId(generateId());
+        //employee.getSchoolQualification().add(registerRequest.getSchoolQualification());
         employeeRepository.save(employee);
 
         log.info(employee.getFirstName() + " created at " + Instant.now());
-        return new RegisterResponse(employee.getFirstName() + " has been registered");
+        return new RegisterResponse("Employee " + employee.getFirstName() + " has been registered, " +
+                "employee id number is: " + employee.getEmployeeId());
     }
 
     @Override
@@ -101,7 +105,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public SuspensionStatusResponse suspendEmployeeByEmailAddress(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         if (employee == null) {
             throw new EmployeeDoesNotExist("employee with email address " + emailAddress + " does not exist");
         }
@@ -111,11 +115,12 @@ public class EmployeeServicesImpl implements EmployeeServices {
         return new SuspensionStatusResponse(employee.getFirstName() +
                 " " + employee.getLastName() + " is suspended");
     }
+
     @Override
-    public SuspensionStatusResponse suspendEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public SuspensionStatusResponse suspendEmployeeById(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new EmployeeDoesNotExist("employee with id: " + id + " does not exist");
+            throw new EmployeeDoesNotExist("employee with id: " + employeeId + " does not exist");
         }
         employee.get().setIsSuspended(true);
         employeeRepository.save(employee.get());
@@ -126,18 +131,19 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public Boolean isEmployeeSuspendedByEmail(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         if (employee == null) {
             throw new EmployeeDoesNotExist("employee with id " + emailAddress + " does not exist");
         }
 
         return employee.getIsSuspended();
     }
+
     @Override
-    public Boolean isEmployeeSuspendedById(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public Boolean isEmployeeSuspendedById(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new EmployeeDoesNotExist("employee with id " + id + " does not exist");
+            throw new EmployeeDoesNotExist("employee with id " + employeeId + " does not exist");
         }
 
         return employee.get().getIsSuspended();
@@ -145,7 +151,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public SuspensionStatusResponse unSuspendEmployeeEmailAddress(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         if (employee == null) {
             throw new EmployeeDoesNotExist("employee with email address" + emailAddress + " does not exist");
         }
@@ -158,11 +164,12 @@ public class EmployeeServicesImpl implements EmployeeServices {
         return new SuspensionStatusResponse(employee.getFirstName() + " " + employee.getLastName() + " is" +
                 " unsuspended");
     }
+
     @Override
-    public SuspensionStatusResponse unSuspendEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public SuspensionStatusResponse unSuspendEmployeeById(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new EmployeeDoesNotExist("employee with id: " + id + " does not exist");
+            throw new EmployeeDoesNotExist("employee with id: " + employeeId + " does not exist");
         }
         if (employee.get().getIsSuspended() == Boolean.FALSE) {
             throw new IllegalArgumentException("Employee suspension status is false");
@@ -176,7 +183,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public Response deleteEmployeeByEmailAddress(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         if (employee == null) {
             throw new EmployeeDoesNotExist("employee with email address " + emailAddress + " does not exist");
         }
@@ -188,7 +195,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public Long getEmployeeIdByEmailAddress(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         if (employee == null) {
             throw new EmployeeDoesNotExist("employee with email address " + emailAddress + " does not exist");
         }
@@ -197,13 +204,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Response deleteEmployeeById(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public Response deleteEmployeeById(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new IllegalArgumentException("employee with " + id + " does not exist");
+            throw new IllegalArgumentException("employee with " + employeeId + " does not exist");
         }
         employeeRepository.delete(employee.get());
-        return new Response("Employee with id number: " + id + " has been deleted");
+        return new Response("Employee with id number: " + employeeId + " has been deleted");
     }
 
     @Override
@@ -213,37 +220,30 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Optional<Employee> getEmployeeById(long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public Optional<Employee> getEmployeeById(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new EmployeeDoesNotExist("employee with id: " + id + " does not exist");
+            throw new EmployeeDoesNotExist("employee with id: " + employeeId + " does not exist");
         }
-
         return employee;
-      /*  return Optional.ofNullable(employeeRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("employee with " + id + " does not exist")));**/
     }
 
     @Override
-    public UpdateResponse updateEmployeeDetails(long id, UpdateRequest updateRequest) {
-        Optional<Employee> employee = employeeRepository.findById(id);
+    public UpdateResponse updateEmployeeDetails(String employeeId, UpdateRequest updateRequest) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
         if (employee.isEmpty()) {
-            throw new EmployeeDoesNotExist("employee with id: " + id + " does not exist");
+            throw new EmployeeDoesNotExist("employee with id: " + employeeId + " does not exist");
         }
         if (updateRequest.getFirstName().length() != 0) {
             employee.get().setFirstName(updateRequest.getFirstName());
-        }
-        if (updateRequest.getLastName().length() != 0) {
+        } else if (updateRequest.getLastName().length() != 0) {
             employee.get().setLastName(updateRequest.getLastName());
-        }
-        if (updateRequest.getAge() > 0) {
+        } else if (updateRequest.getAge() > 0) {
             employee.get().setAge(updateRequest.getAge());
-        }
-        if (updateRequest.getPhoneNumber().length() != 0) {
+        } else if (updateRequest.getPhoneNumber().length() != 0) {
             employee.get().setPhoneNumber(updateRequest.getPhoneNumber());
-        }
-        if (!emailExists(updateRequest.getEmailAddress()) && updateRequest.getEmailAddress().length() != 0) {
-            employee.get().setEmailAddress(updateRequest.getEmailAddress());
+        } else if (!emailExists(updateRequest.getEmailAddress()) && updateRequest.getEmailAddress().length() != 0) {
+            employee.get().setEmailAddress(updateRequest.getEmailAddress().toLowerCase());
         }
 
         employeeRepository.save(employee.get());
@@ -255,8 +255,15 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     private Boolean emailExists(String emailAddress) {
-        Employee employee = employeeRepository.findByEmailAddress(emailAddress);
+        Employee employee = employeeRepository.findByEmailAddress(emailAddress.toLowerCase());
         return employee != null;
     }
+
+    private static String generateId() {
+        String id = String.valueOf(UUID.randomUUID().getMostSignificantBits());
+        id = "EM" + id.substring(5, 10);
+        return id;
+    }
+
 
 }

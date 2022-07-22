@@ -1,6 +1,6 @@
 package africa.semicolon.employeemanagementsystems.controller;
 
-import africa.semicolon.employeemanagementsystems.data.models.JobLevel;
+import africa.semicolon.employeemanagementsystems.enums.JobLevel;
 import africa.semicolon.employeemanagementsystems.dto.ApiResponse;
 import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
@@ -73,10 +73,10 @@ public class EmployeeServiceController {
         }
     }
 
-    @PostMapping("/suspend/employee/{id}")
-    public ResponseEntity<?> suspendEmployeeById(@PathVariable Long id) {
+    @PostMapping("/suspend/employee/{employeeId}")
+    public ResponseEntity<?> suspendEmployeeById(@PathVariable String employeeId) {
         try {
-            var serviceResponse = employeeServices.suspendEmployeeById(id);
+            var serviceResponse = employeeServices.suspendEmployeeById(employeeId);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (EmailAlreadyExist e) {
@@ -85,10 +85,10 @@ public class EmployeeServiceController {
         }
     }
 
-    @GetMapping("/isSuspended/employee/{id}")
-    public ResponseEntity<?> isSuspendEmployeeById(@PathVariable Long id) {
+    @GetMapping("/isSuspended/employee/{employeeId}")
+    public ResponseEntity<?> isSuspendEmployeeById(@PathVariable String employeeId) {
         try {
-            var serviceResponse = employeeServices.isEmployeeSuspendedById(id);
+            var serviceResponse = employeeServices.isEmployeeSuspendedById(employeeId);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (EmailAlreadyExist e) {
@@ -97,10 +97,10 @@ public class EmployeeServiceController {
         }
     }
 
-    @PostMapping("/unSuspend/employee/{id}")
-    public ResponseEntity<?> unSuspendEmployeeById(@PathVariable Long id) {
+    @PostMapping("/unSuspend/employee/{employeeId}")
+    public ResponseEntity<?> unSuspendEmployeeById(@PathVariable String employeeId) {
         try {
-            var serviceResponse = employeeServices.unSuspendEmployeeById(id);
+            var serviceResponse = employeeServices.unSuspendEmployeeById(employeeId);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (EmailAlreadyExist e) {
@@ -109,10 +109,10 @@ public class EmployeeServiceController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAnEmployee(@PathVariable Long id) {
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<?> getAnEmployee(@PathVariable String employeeId) {
         try {
-            var serviceResponse = employeeServices.getEmployeeById(id);
+            var serviceResponse = employeeServices.getEmployeeById(employeeId);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -121,10 +121,10 @@ public class EmployeeServiceController {
         }
     }
 
-    @DeleteMapping("/employee/{id}")
-    public ResponseEntity<?> deleteAnEmployee(@PathVariable Long id) {
+    @DeleteMapping("/employee/{employeeId}")
+    public ResponseEntity<?> deleteAnEmployee(@PathVariable String employeeId) {
         try {
-            var serviceResponse = employeeServices.deleteEmployeeById(id);
+            var serviceResponse = employeeServices.deleteEmployeeById(employeeId);
             ApiResponse apiResponse = new ApiResponse(true, serviceResponse);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         } catch (IllegalArgumentException e) {

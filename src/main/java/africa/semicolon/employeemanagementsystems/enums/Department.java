@@ -1,4 +1,4 @@
-package africa.semicolon.employeemanagementsystems.data.models;
+package africa.semicolon.employeemanagementsystems.enums;
 
 public enum Department {
     FINANCE("Finance"),

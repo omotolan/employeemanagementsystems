@@ -1,7 +1,7 @@
 package africa.semicolon.employeemanagementsystems.services;
 
 import africa.semicolon.employeemanagementsystems.data.models.Employee;
-import africa.semicolon.employeemanagementsystems.data.models.JobLevel;
+import africa.semicolon.employeemanagementsystems.enums.JobLevel;
 import africa.semicolon.employeemanagementsystems.dto.reponse.RegisterResponse;
 import africa.semicolon.employeemanagementsystems.dto.reponse.Response;
 import africa.semicolon.employeemanagementsystems.dto.reponse.SuspensionStatusResponse;
@@ -24,11 +24,11 @@ public interface EmployeeServices {
 
     List<Employee> getEmployeeByJobLevel(JobLevel jobLevel);
 
-    Boolean isEmployeeSuspendedById(Long id);
-    SuspensionStatusResponse unSuspendEmployeeById(Long id);
+    Boolean isEmployeeSuspendedById(String employeeId);
+    SuspensionStatusResponse unSuspendEmployeeById(String employeeId);
 
     SuspensionStatusResponse suspendEmployeeByEmailAddress(String emailAddress);
-    SuspensionStatusResponse suspendEmployeeById(Long id);
+    SuspensionStatusResponse suspendEmployeeById(String employeeId);
 
     Boolean isEmployeeSuspendedByEmail(String emailAddress);
 
@@ -38,11 +38,11 @@ public interface EmployeeServices {
 
     Long getEmployeeIdByEmailAddress(String emailAddress);
 
-    Response deleteEmployeeById(Long id);
+    Response deleteEmployeeById(String employeeId);
 
     Response deleteAllEmployee();
 
-    Optional<Employee> getEmployeeById(long id);
+    Optional<Employee> getEmployeeById(String employeeId);
 
-    UpdateResponse updateEmployeeDetails(long id, UpdateRequest updateRequest);
+    UpdateResponse updateEmployeeDetails(String employeeId, UpdateRequest updateRequest);
 }

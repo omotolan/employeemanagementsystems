@@ -9,14 +9,16 @@ import africa.semicolon.employeemanagementsystems.dto.reponse.UpdateResponse;
 import africa.semicolon.employeemanagementsystems.dto.request.DepartmentRequest;
 import africa.semicolon.employeemanagementsystems.dto.request.Register;
 import africa.semicolon.employeemanagementsystems.dto.request.UpdateRequest;
+import africa.semicolon.employeemanagementsystems.enums.Department;
+import africa.semicolon.employeemanagementsystems.enums.JobLevel;
+import africa.semicolon.employeemanagementsystems.enums.SchoolQualification;
 import africa.semicolon.employeemanagementsystems.exceptions.EmailAlreadyExist;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -24,8 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class EmployeeServicesImplTest {
-
+    @Autowired
     private final EmployeeServices employeeServices;
+    @Autowired
     private final EmployeeRepository repository;
 
     @Autowired
@@ -37,27 +40,31 @@ class EmployeeServicesImplTest {
 
     @Test
     public void testThatEmployeeCanRegister() {
+//        EnumSet<SchoolQualification> schoolQualifications = n;
+//        schoolQualifications.add(SchoolQualification.BSC);
+//        schoolQualifications.add(SchoolQualification.MSC);
+
         Register registerRequest = Register.builder()
                 .firstName("tolani")
                 .lastName("akinsola")
                 .age(34)
-                .emailAddress("abakinsolatolanni@gmaiill.com")
+                .emailAddress("ipeaafnsolatgaoalanni@gmaiill.com")
                 .phoneNumber("08043432323")
                 .isSuspended(false)
                 .department(Department.FINANCE)
                 .jobLevel(JobLevel.MIDDLE)
-                .schoolQualification(SchoolQualification.BSC)
-                .schoolQualification(SchoolQualification.MSC)
+               // .schoolQualification(schoolQualifications)
                 .build();
 
         RegisterResponse registerResponse = employeeServices.registerEmployee(registerRequest);
         assertTrue(repository.count() > 0);
-        assertEquals("tolani has been registered", registerResponse.toString());
+        assertEquals("Employee tolani has been registered, employee id number is: EM78546", registerResponse.toString());
 
     }
 
     @Test
     public void testThatRegistrationMethodThrowsExceptions() {
+
         Register registerRequest = Register.builder()
                 .firstName("tolani")
                 .lastName("akinsola")
@@ -66,8 +73,6 @@ class EmployeeServicesImplTest {
                 .phoneNumber("08043432323")
                 .isSuspended(false)
                 .jobLevel(JobLevel.MIDDLE)
-                .schoolQualification(SchoolQualification.BSC)
-                .schoolQualification(SchoolQualification.MSC)
                 .build();
         assertThatThrownBy(() ->
                 employeeServices.registerEmployee(registerRequest)
@@ -80,7 +85,7 @@ class EmployeeServicesImplTest {
 
     @Test
     public void testToFindEmployeeById() {
-        Optional<Employee> employee = employeeServices.getEmployeeById(1L);
+        Optional<Employee> employee = employeeServices.getEmployeeById("EM656");
         assertThat(employee).isNotNull();
         assertEquals(" ", employee.get().getEmailAddress());
     }
@@ -139,7 +144,7 @@ class EmployeeServicesImplTest {
 
     @Test
     public void testThatEmployeeCanBeDeletedById() {
-        Response response = employeeServices.deleteEmployeeById(3L);
+        Response response = employeeServices.deleteEmployeeById("EM3546");
         assertEquals(" ", response.toString());
     }
 
@@ -152,7 +157,7 @@ class EmployeeServicesImplTest {
     @Test
     public void testToUpdateEmployeeDetails() {
         UpdateRequest updateRequest = new UpdateRequest();
-        UpdateResponse updateResponse = employeeServices.updateEmployeeDetails(1L, updateRequest);
+        UpdateResponse updateResponse = employeeServices.updateEmployeeDetails("EM34356", updateRequest);
     }
 
     @Test
